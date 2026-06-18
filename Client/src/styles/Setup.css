@@ -1,0 +1,192 @@
+/* Setup.css */
+
+.setup-head {
+  margin-bottom: var(--space-5);
+}
+.setup-head h1 { margin-bottom: 2px; }
+
+.setup-section {
+  margin-bottom: var(--space-4);
+}
+.setup-section h3 {
+  margin-bottom: var(--space-4);
+}
+
+/* Template chips */
+.setup-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.setup-template {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.setup-template:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.setup-template--on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* Shift chips */
+.setup-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+.setup-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.setup-chip .ss-input { width: 140px; }
+
+/* Roles */
+.setup-roles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.setup-role {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.setup-role-name { flex: 1; min-width: 160px; }
+.setup-role-count,
+.setup-role-mgr {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.setup-role-count input[type="number"] {
+  width: 64px;
+  padding: 9px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 15px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+.setup-role-mgr input,
+.setup-demo input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.setup-x {
+  background: none;
+  border: none;
+  color: var(--color-text-soft);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+}
+.setup-x:hover { color: var(--color-danger); background: var(--color-danger-light); }
+
+.setup-add { padding: 8px 14px; font-size: 14px; }
+
+/* Employees */
+.setup-employees {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+.setup-num {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 15px;
+  font-weight: 600;
+}
+.setup-num input[type="number"] {
+  width: 80px;
+  padding: 9px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 15px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+.setup-demo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 15px;
+  cursor: pointer;
+}
+.setup-note { margin: var(--space-3) 0 0; font-size: 13px; }
+
+.setup-error {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  font-weight: 500;
+}
+
+.setup-actions {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-5) 0;
+}
+.setup-build {
+  font-size: 17px;
+  padding: 14px 32px;
+}
+.setup-build:disabled { opacity: 0.7; cursor: not-allowed; }
+
+/* Result */
+.setup-result {
+  border-color: var(--color-primary);
+}
+.setup-result h3 { color: var(--color-success); }
+.setup-reply {
+  white-space: pre-wrap;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.setup-accounts {
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+}
+.setup-accounts table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.setup-accounts th,
+.setup-accounts td {
+  border: 1px solid var(--color-border);
+  padding: 9px 12px;
+  text-align: center;
+}
+.setup-accounts th { background: var(--color-surface-2); font-weight: 700; }
+
+.setup-result-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}

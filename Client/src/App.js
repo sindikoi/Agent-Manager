@@ -7,6 +7,7 @@ import WeekleyScu from "./pages/WeekleyScu";
 import ManageHours from "./pages/ManageHours";
 import EmployeeRequest from "./pages/EmployeeRequest";
 import AgentChat from "./pages/AgentChat";
+import Setup from "./pages/Setup";
 function App() {
   return (
     <>
@@ -20,6 +21,7 @@ function App() {
         <Route path="/manage-hours" element={<ManageHours />} />
         <Route path="/EmployeeRequest" element={<EmployeeRequest />} />
         <Route path="/agent" element={<AgentChat />} />
+        <Route path="/setup" element={<Setup />} />
       </Routes>
     </>
   );

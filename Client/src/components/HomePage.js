@@ -101,6 +101,15 @@ const HomePage = () => {
 
   const actions = [
     {
+      key: "setup",
+      title: "הגדרת סידור",
+      desc: "בנה סידור חדש עם הסוכן",
+      icon: "sparkles",
+      path: "/setup",
+      show: manager,
+      accent: true,
+    },
+    {
       key: "schedule",
       title: "סידור שבועי",
       desc: "צפייה בלוח המשמרות",
@@ -131,7 +140,6 @@ const HomePage = () => {
       icon: "sparkles",
       path: "/agent",
       show: manager,
-      accent: true,
     },
   ].filter((a) => a.show);
 

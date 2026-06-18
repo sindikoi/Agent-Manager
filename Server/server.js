@@ -167,6 +167,69 @@ app.post("/save-schedule/:orgId", handler(async (req, res) => {
 }));
 
 // ==============================================================================
+// EMPLOYEES (manager view + account creation)
+// ==============================================================================
+
+// Creates `count` employee login accounts for an org. Employees start with NO
+// availability — each employee logs in and submits their own availability.
+// Optionally seeds demo availability so a manager can preview a schedule at once.
+async function createEmployeesForOrg(db, orgId, count, withDemoAvailability) {
+  const org = await db.collection("organizations").findOne({ _id: orgId });
+  if (!org) throw new Error(`Organization ${orgId} not found`);
+
+  const n = Math.max(1, Math.min(parseInt(count, 10) || 0, 100));
+  const allQuals = (org.qualifications || []).map((q) => q.id);
+  const allRoles = (org.roles || []).map((r) => r.id);
+  const shiftIds = (org.shiftTypes || []).map((s) => s.id);
+  const days = Object.keys(org.scheduleRequirements || {});
+  const demoAvailability = days.map((day) => ({ day, shifts: shiftIds }));
+
+  // Remove previously auto-created accounts for this org to avoid pile-up.
+  await db.collection("employees").deleteMany({ organizationId: orgId, autoCreated: true });
+
+  const last = await db.collection("employees").find({}).sort({ _id: -1 }).limit(1).toArray();
+  let nextId = last.length ? last[0]._id + 1 : 201;
+  const managersNeeded = Math.max(1, Math.round(n / 5));
+
+  const docs = [];
+  for (let i = 0; i < n; i++) {
+    const id = nextId++;
+    docs.push({
+      _id: id,
+      name: `עובד ${i + 1}`,
+      password: `pass${id}`,
+      organizationId: orgId,
+      isManager: i < managersNeeded,
+      qualifications: allQuals,
+      eligibleRoles: allRoles,
+      selectedDays: withDemoAvailability ? demoAvailability : [],
+      autoCreated: true,
+    });
+  }
+  await db.collection("employees").insertMany(docs);
+  return docs.map((d) => ({ id: d._id, name: d.name, password: d.password, isManager: d.isManager }));
+}
+
+app.get("/api/employees/:orgId", handler(async (req, res) => {
+  const db = await getDb();
+  const emps = await db.collection("employees")
+    .find({ organizationId: req.params.orgId })
+    .sort({ _id: 1 })
+    .toArray();
+  res.json({
+    success: true,
+    employees: emps.map((e) => ({
+      id: e._id,
+      name: e.name,
+      password: e.autoCreated ? e.password : undefined,
+      isManager: e.isManager === true,
+      autoCreated: e.autoCreated === true,
+      availabilitySubmitted: Array.isArray(e.selectedDays) && e.selectedDays.length > 0,
+    })),
+  });
+}));
+
+// ==============================================================================
 // SCHEDULER (spawns the generic Python solver)
 // ==============================================================================
 function runSchedulerProcess(managerId, weekStartDate) {
@@ -304,6 +367,19 @@ const AGENT_TOOLS = [
     },
   },
   {
+    name: "create_employees",
+    description: "יוצר חשבונות התחברות לעובדים בארגון לפי מספר נתון. כל עובד מתחבר בנפרד ומגיש את הזמינות שלו. השתמש בכלי הזה כשהמנהל אומר כמה עובדים יש לו. אם המנהל רוצה לראות סידור לדוגמה מיד, העבר with_demo_availability=true.",
+    input_schema: {
+      type: "object",
+      properties: {
+        org_id: { type: "string" },
+        count: { type: "number", description: "כמה חשבונות עובדים ליצור" },
+        with_demo_availability: { type: "boolean", description: "האם למלא זמינות לדוגמה כדי לראות סידור מיד (ברירת מחדל false)" },
+      },
+      required: ["org_id", "count"],
+    },
+  },
+  {
     name: "run_scheduler",
     description: "מריץ את אלגוריתם הסידור ומחשב סידור עבודה לשבוע הנתון. קרא לכלי הזה רק אחרי שהגדרות הארגון מוכנות.",
     input_schema: {
@@ -348,6 +424,17 @@ async function executeTool(toolName, toolInput) {
     for (const [k, v] of Object.entries(toolInput.updates)) setDoc[k] = v;
     await db.collection("organizations").updateOne({ _id: toolInput.org_id }, { $set: setDoc }, { upsert: true });
     return "הגדרות הארגון עודכנו בהצלחה.";
+  }
+
+  if (toolName === "create_employees") {
+    const created = await createEmployeesForOrg(
+      db, toolInput.org_id, toolInput.count, toolInput.with_demo_availability === true
+    );
+    return JSON.stringify({
+      created: created.length,
+      note: "החשבונות נוצרו. כל עובד מתחבר עם מספר ה-ID והסיסמה ומגיש זמינות.",
+      accounts: created,
+    }, null, 2);
   }
 
   if (toolName === "run_scheduler") {
@@ -409,14 +496,23 @@ ${resolvedOrgId ? `מזהה ארגון: ${resolvedOrgId}` : ""}
 
 תפקידך:
 - לעזור למנהל להגדיר את מבנה הסידור שלו (משמרות, תפקידים, כשירויות נדרשות)
+- ליצור חשבונות עובדים לפי המספר שהמנהל נותן
 - להריץ את אלגוריתם הסידור ולהחזיר תוצאות
 - להסביר בעברית פשוטה אילו משמרות לא שובצו ולמה (חסר עובדים עם הכשירות הנדרשת, אין מי שזמין וכו')
 - לענות על שאלות על הסידור והעובדים
 
-כשמנהל מתאר לך את מבנה הסידור שלו (כמה עובדים, אילו משמרות, אילו תפקידים, מי כשיר למה) —
-השתמש בכלים כדי לעדכן את הגדרות הארגון, ואז הצע להריץ את הסקדולר.
+זרימת הקמה מלאה (כשמנהל מתאר עסק חדש):
+1. בנה את הגדרות הארגון עם update_organization_config:
+   - shiftTypes: רשימת המשמרות (id באנגלית קצר, name בעברית).
+   - roles: התפקידים (id באנגלית, name בעברית). סמן את תפקיד האחראי עם isManagerRole=true.
+   - scheduleRequirements: אובייקט { יום: { shiftId: { roleId: מספר } } } לכל שבעת ימי השבוע
+     (Sunday עד Saturday), אותה דרישה בכל יום אלא אם המנהל ביקש אחרת.
+   - constraints: { maxWorkDaysPerWeek: 6, fairnessMaxDiff: 3, forbiddenShiftSequences: [] }.
+2. צור חשבונות עובדים עם create_employees לפי המספר שהמנהל נתן. העובדים מגישים זמינות בעצמם —
+   רק אם המנהל מבקש לראות סידור לדוגמה מיד העבר with_demo_availability=true.
+3. אם קיימת זמינות (לדוגמה או אמיתית) — הצע להריץ את הסקדולר עם run_scheduler.
 
-דבר תמיד בעברית. היה קצר, ברור ומועיל.`;
+דבר תמיד בעברית. היה קצר, ברור ומועיל. בסיום הקמה החזר למנהל את רשימת חשבונות העובדים שנוצרו (ID + סיסמה) כדי שיחלק אותם.`;
 
   const messages = [...conversationHistory, { role: "user", content: message }];
 
