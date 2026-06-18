@@ -552,6 +552,22 @@ ${resolvedOrgId ? `מזהה ארגון: ${resolvedOrgId}` : ""}
 }));
 
 // ==============================================================================
+// SERVE THE BUILT CLIENT (so the whole app is available on one URL / one server)
+// ==============================================================================
+const clientBuild = path.join(__dirname, "..", "Client", "build");
+const fs = require("fs");
+if (fs.existsSync(clientBuild)) {
+  app.use(express.static(clientBuild));
+  // SPA fallback: any non-API route returns index.html
+  app.get(/^\/(?!api|login|EmployeeRequest|get-schedule|save-schedule).*/, (req, res) => {
+    res.sendFile(path.join(clientBuild, "index.html"));
+  });
+  console.log("📦 Serving client build from", clientBuild);
+} else {
+  console.log("ℹ️  Client build not found — run `npm run build` in /Client to serve the UI from this server.");
+}
+
+// ==============================================================================
 const PORT = process.env.PORT || 3002;
 getDb()
   .then(() => {
