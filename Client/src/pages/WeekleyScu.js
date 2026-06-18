@@ -57,13 +57,14 @@ const WeeklySchedule = () => {
       return null;
     }
   });
-  const orgName = user?.Workplace || '';
+  const orgId = user?.organizationId || user?.Workplace || '';
+  const orgName = user?.organizationName || user?.Workplace || '';
 
   useEffect(() => {
-    if (!orgName) return;
+    if (!orgId) return;
     setError(null);
 
-    fetch(`/api/generated-schedules/${encodeURIComponent(orgName)}`)
+    fetch(`/api/generated-schedules/${encodeURIComponent(orgId)}`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then((data) => {
         const latestSchedule = data?.now || null;
@@ -89,7 +90,7 @@ const WeeklySchedule = () => {
         console.error('Error loading schedules:', err);
         setError('טעינת הסידור נכשלה. נסו שוב מאוחר יותר.');
       });
-  }, [orgName]);
+  }, [orgId]);
 
   const getWorkerName = (workerId, idToNameMap) => {
     const name = idToNameMap?.[String(workerId)];
@@ -202,8 +203,8 @@ const WeeklySchedule = () => {
     scheduleToDisplay = schedules.previous[selectedPreviousIndex] || null;
 
   if (error) return <div className="ss-page"><div className="error-message">{error}</div></div>;
-  if (!orgName && user)
-    return <div className="ss-page"><div className="error-message">למשתמש לא משויך מקום עבודה.</div></div>;
+  if (!orgId && user)
+    return <div className="ss-page"><div className="error-message">למשתמש לא משויך ארגון.</div></div>;
   if (!user) return null;
 
   return (

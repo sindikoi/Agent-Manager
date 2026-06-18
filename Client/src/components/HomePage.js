@@ -41,8 +41,10 @@ const HomePage = () => {
     setUser(savedUser);
 
     const selectedDays = savedUser.selectedDays || [];
+    const orgId = savedUser.organizationId || savedUser.Workplace;
+    if (!orgId) return;
 
-    fetch(`/api/generated-schedules/${encodeURIComponent(savedUser.Workplace)}`)
+    fetch(`/api/generated-schedules/${encodeURIComponent(orgId)}`)
       .then((res) => res.json())
       .then((data) => {
         const notes = data.next?.notes || [];

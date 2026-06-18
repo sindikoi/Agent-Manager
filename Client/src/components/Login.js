@@ -28,10 +28,12 @@ const Login = () => {
             id: response.data.id,
             job: response.data.job,
             name: response.data.name,
-            Workplace: response.data.Workplace,
+            isManager: response.data.isManager,
             ShiftManager: response.data.ShiftManager,
+            organizationId: response.data.organizationId,
+            organizationName: response.data.organizationName,
+            Workplace: response.data.organizationName,
             selectedDays: response.data.selectedDays || [],
-            WeaponCertified: response.data.WeaponCertified,
           };
           localStorage.setItem("user", JSON.stringify(userData));
           navigate("/home", { state: { user: userData } });
