@@ -1,0 +1,159 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f4f8;
+}
+
+.manage-hours-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.manage-hours-form {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.manage-hours-form h2,
+.manage-hours-form h3 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.shift-title {
+  text-align: center;
+  font-size: 1.5rem;
+  margin: 1em 0 0.5em 0;
+  width: 100%;
+  font-weight: bold;
+}
+
+.table-wrapper {
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin: 20px 0;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.schedule-table th,
+.schedule-table td {
+  border: 1px solid #ccc;
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.schedule-table th {
+  background-color: #0c4279;
+  color: white;
+  font-weight: 600;
+  border: 1px solid #bbb;
+}
+
+.schedule-table tbody tr:nth-child(even) {
+  background-color: #f4f9fd;
+}
+
+.schedule-table tbody tr:hover {
+  background-color: #e1f5fe;
+  transition: background-color 0.2s ease-in-out;
+}
+
+input[type="number"] {
+  width: 60px;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+button {
+  cursor: pointer;
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 4px;
+  color: rgb(255, 255, 255);
+  transition: background-color 0.3s ease;
+  font-size: 16px;
+}
+
+button.add-position,
+button.save-all,
+.run-scheduler-button,
+button.save-requirements-button {
+  background-color: #0c4279;
+  min-width: 180px;
+}
+
+button.add-position:hover,
+button.save-all:hover,
+.run-scheduler-button:hover,
+button.save-requirements-button:hover {
+  background-color: #1565c0;
+}
+
+button.remove-position {
+  background-color: #e53935;
+}
+
+button.remove-position:hover {
+  background-color: #c62828;
+}
+.bottom-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* רווח בין הכפתורים */
+  margin-top: 20px;
+}
+.shift-title {
+  font-size: 1.8em;
+  text-align: center;
+  color: #176fc6;
+  margin-bottom: 10px;
+}
+
+.week-navigation-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+
+
+.day-nav-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.day-nav {
+  margin: 0 10px;
+  background-color: #1668b9;
+  color: #ffffff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day-nav:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

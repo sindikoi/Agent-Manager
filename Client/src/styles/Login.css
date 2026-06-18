@@ -1,0 +1,100 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #fdf6ec;
+  padding: 0 20px;
+}
+
+.logo-area {
+  text-align: center;
+}
+
+.logo-img {
+  width: 280px;
+  height: auto;
+  margin: 10px;
+  animation: bounce 2s; /* ✅ רק על התמונה */
+}
+
+.logo-title {
+  font-size: 72px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 10px;
+}
+
+.logo-tagline {
+  font-size: 32px;
+  color: #475569;
+  margin: 0 0 30px 0;
+}
+
+.login-form {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  width: 400px;
+}
+
+.login-form h2 {
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.login-form label {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 16px;
+  background: #ffffff;
+}
+
+.login-form input::placeholder {
+  color: #9ca3af;
+}
+
+.login-button {
+  width: 100%;
+  padding: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0, 128, 0, 0.2);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}

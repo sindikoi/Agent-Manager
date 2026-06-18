@@ -1,0 +1,42 @@
+.employee-request {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  .availability-table {
+    margin: 20px auto;
+    border-collapse: collapse;
+    width: 50%;
+  }
+  
+  .availability-table th,
+  .availability-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .availability-table th {
+    background-color: #f4f4f4;
+  }
+  
+  .selected-row {
+    background-color: lightgreen;
+  }
+  
+  .send-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #1f0ac1;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .send-button:hover {
+    background-color: #15087a;
+  }
+  

@@ -1,0 +1,76 @@
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python virtual environments and caches
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+.eggs/
+.cache/
+.pytest_cache/
+coverage.*
+*.cover
+htmlcov/
+.tox/
+
+# IntelliJ/PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Black formatting cache (אם אי פעם הותקן שוב)
+.black
+
+# Node.js
+/node_modules
+Client/node_modules
+Server/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+Client/package-lock.json
+Server/package-lock.json
+.pnpm-debug.log
+
+# SSL/PEM Certificates
+pem.*
+*.pem
+
+# Build outputs
+dist/
+build/
+out/
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# qodo settings
+.qodo/
+
+# Misc
+*.swp
+*.swo
+*.tmp
+*.bak
+*.old
+*.orig
