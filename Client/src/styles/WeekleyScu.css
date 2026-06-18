@@ -1,121 +1,99 @@
-/* בסיס */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
-  margin: 0;
-  padding: 0;
+/* WeekleyScu.css */
+
+.weekly-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+.weekly-head h1 { margin-bottom: 2px; }
+
+.weekly-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
-/* עוטף תוכן */
-.content-wrapper {
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 0 20px;
-  box-sizing: border-box;
+.schedule-header {
+  font-size: 16px;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
 }
 
-/* כותרת ראשית */
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #2b3c57;
+.partial-schedule-note {
+  color: var(--color-warning);
+  font-weight: 600;
+  margin-right: var(--space-2);
 }
 
-
-/* טבלת משמרות לפי יום */
 .day-section {
-  margin-bottom: 40px;
+  margin-bottom: var(--space-6);
+}
+.day-section h3 {
+  color: var(--color-text);
+  margin-bottom: var(--space-3);
 }
 
-.day-section h3 {
-  text-align: center;
-  color: #2b3c57;
-  margin-bottom: 10px;
+.schedule-grid-wrap {
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .schedule-grid {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 auto;
+  font-size: 14px;
 }
 
 .schedule-grid th,
 .schedule-grid td {
-  border: 1px solid #ccc;
-  padding: 10px;
+  border-bottom: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
+  padding: 10px 12px;
   text-align: center;
   vertical-align: top;
 }
+.schedule-grid th:last-child,
+.schedule-grid td:last-child { border-left: none; }
+.schedule-grid tr:last-child td { border-bottom: none; }
 
 .schedule-grid th {
-  background-color: #2b3c57;
-  color: white;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-weight: 700;
+  position: sticky;
+  top: 0;
 }
 
-/* עיצוב עובדים */
-
-.worker-ok {
-  color: black;
+.pos-cell {
+  font-weight: 600;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  white-space: nowrap;
 }
 
-.worker-missing {
-  color: red;
-}
-
+.worker-ok { color: var(--color-text); }
+.worker-missing { color: var(--color-danger); font-weight: 600; }
 .highlight-user {
-  color: green;
-  font-weight: bold;
+  color: var(--color-primary);
+  font-weight: 700;
+  background: var(--color-primary-light);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
 }
 
-
-
-/* כפתורים בצד ימין */
-.button-fixed-right {
-  position: fixed;
-  top: 100px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 1000;
-}
-
-.button-fixed-right button {
-  padding: 10px 20px;
-  background-color: #2b3c57;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  width: 200px;
-}
-
-.button-fixed-right button:hover {
-  background-color: #3c5894;
-}
-
-.schedule-header {
+.error-message,
+.no-schedule-message {
   text-align: center;
-  font-size: 1.25em;
-  color: #555;
-}
-
-.partial-schedule-note {
-  color: orange;
-  margin-left: 10px;
-}
-
-
-.dropdown-previous-selector select {
-  padding: 4px 8px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #aaa;
-}
-
-.dropdown-previous-selector label {
-  font-weight: 500;
+  padding: var(--space-6);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }

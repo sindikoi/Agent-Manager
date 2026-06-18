@@ -2,155 +2,165 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/EmployeeRequest.css";
 
+/* Day/shift keys stay in English for back-end compatibility, while the UI
+   shows Hebrew labels. These lists are the single place to later load
+   dynamically from the organization config. */
+const DAYS = [
+  { key: "Sunday", label: "ראשון" },
+  { key: "Monday", label: "שני" },
+  { key: "Tuesday", label: "שלישי" },
+  { key: "Wednesday", label: "רביעי" },
+  { key: "Thursday", label: "חמישי" },
+  { key: "Friday", label: "שישי" },
+  { key: "Saturday", label: "שבת" },
+];
+const SHIFTS = [
+  { key: "Morning", label: "בוקר" },
+  { key: "Afternoon", label: "צהריים" },
+  { key: "Evening", label: "ערב" },
+];
+const SHIFT_KEYS = SHIFTS.map((s) => s.key);
+const MIN_SHIFTS = 5;
+
 const EmployeeRequest = () => {
   const [userId, setUserId] = useState(null);
   const [selectedDays, setSelectedDays] = useState([]);
   const navigate = useNavigate();
 
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const shiftTypes = ["Morning", "Afternoon", "Evening"];
-
-// eslint-disable-next-line react-hooks/exhaustive-deps
-useEffect(() => {
-  const userData = JSON.parse(localStorage.getItem("user"));
-  if (userData && userData.id) {
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user") || "null");
+    if (!userData || !userData.id) {
+      navigate("/login");
+      return;
+    }
     setUserId(userData.id);
 
     fetch(`/EmployeeRequest?userId=${userData.id}`)
       .then((res) => res.json())
       .then((data) => {
         if (data && Array.isArray(data.selectedDays)) {
-          const cleaned = daysOfWeek.map((day) => {
-            const found = data.selectedDays.find(d => d.day.toLowerCase() === day.toLowerCase());
-            return found ? {
-              day,
-              shifts: shiftTypes.filter(shift => found.shifts.includes(shift))
-            } : null;
+          const cleaned = DAYS.map(({ key }) => {
+            const found = data.selectedDays.find(
+              (d) => d.day.toLowerCase() === key.toLowerCase()
+            );
+            return found
+              ? { day: key, shifts: SHIFT_KEYS.filter((s) => found.shifts.includes(s)) }
+              : null;
           }).filter(Boolean);
           setSelectedDays(cleaned);
         }
       })
       .catch((err) => console.error("Failed to fetch existing availability:", err));
-  } else {
-    console.error("User data not found in localStorage.");
-    navigate("/login");
-  }
-}, [navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [navigate]);
 
-
-  const handleDayCheckboxChange = (day) => {
+  const toggleDay = (day) => {
     setSelectedDays((prev) => {
-      const updated = [...prev];
-      const index = updated.findIndex((d) => d.day === day);
-      if (index !== -1) {
-        updated.splice(index, 1);
-      } else {
-        updated.push({ day, shifts: [] });
-      }
-      return updated;
+      const index = prev.findIndex((d) => d.day === day);
+      if (index !== -1) return prev.filter((d) => d.day !== day);
+      return [...prev, { day, shifts: [] }];
     });
   };
 
-  const handleShiftCheckboxChange = (day, shift) => {
-    setSelectedDays((prev) => {
-      const updated = [...prev];
-      const index = updated.findIndex((d) => d.day === day);
-      if (index !== -1) {
-        const shifts = updated[index].shifts;
-        if (shifts.includes(shift)) {
-          updated[index].shifts = shifts.filter((s) => s !== shift);
-        } else {
-          updated[index].shifts.push(shift);
-        }
-      }
-      return updated;
-    });
+  const toggleShift = (day, shift) => {
+    setSelectedDays((prev) =>
+      prev.map((d) => {
+        if (d.day !== day) return d;
+        const shifts = d.shifts.includes(shift)
+          ? d.shifts.filter((s) => s !== shift)
+          : [...d.shifts, shift];
+        return { ...d, shifts };
+      })
+    );
   };
 
-  const countSelectedShifts = () => {
-    return selectedDays.reduce((total, day) => total + day.shifts.length, 0);
-  };
+  const totalShifts = selectedDays.reduce((t, d) => t + d.shifts.length, 0);
 
   const handleSend = async () => {
-    if (!userId) {
-      alert("User ID is not defined.");
-      return;
-    }
-
-    if (countSelectedShifts() < 5) {
-      alert("Minimum of 5 shifts per worker");
+    if (!userId) return;
+    if (totalShifts < MIN_SHIFTS) {
+      alert(`יש לבחור לפחות ${MIN_SHIFTS} משמרות.`);
       return;
     }
 
     const requestData = selectedDays.map((d) => ({
       day: d.day,
-      shifts: d.shifts.length > 0 ? d.shifts : shiftTypes
+      shifts: d.shifts.length > 0 ? d.shifts : SHIFT_KEYS,
     }));
 
     try {
       const response = await fetch("/EmployeeRequest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, selectedDays: requestData })
+        body: JSON.stringify({ userId, selectedDays: requestData }),
       });
-
       if (response.ok) {
-        alert("✅ Great job! See you on shift.");
+        alert("✅ הזמינות נשמרה. נתראה במשמרת!");
         navigate("/home");
       } else {
-        const errorMessage = await response.text();
-        console.error("Server error:", errorMessage);
+        console.error("Server error:", await response.text());
       }
     } catch (error) {
       console.error("An error occurred:", error);
     }
   };
 
+  const remaining = Math.max(0, MIN_SHIFTS - totalShifts);
+
   return (
-    <div className="employee-request">
-      <h1>Employee Request</h1>
-      <p>Select the days and shifts you are available:</p>
-      <p><strong>Note:</strong> Minimum of 5 shifts per worker</p>
-      <table className="availability-table">
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Available</th>
-            {shiftTypes.map((shift) => (
-              <th key={shift}>{shift}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {daysOfWeek.map((day) => {
-            const dayObj = selectedDays.find((d) => d.day === day);
-            return (
-              <tr key={day} className={dayObj ? "selected-row" : ""}>
-                <td>{day}</td>
-                <td>
-                  <input
-                    type="checkbox"
-                    onChange={() => handleDayCheckboxChange(day)}
-                    checked={!!dayObj}
-                  />
-                </td>
-                {shiftTypes.map((shift) => (
-                  <td key={shift}>
-                    <input
-                      type="checkbox"
-                      onChange={() => handleShiftCheckboxChange(day, shift)}
-                      checked={dayObj?.shifts.includes(shift) || false}
-                      disabled={!dayObj}
-                    />
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <button className="send-button" onClick={handleSend} disabled={!userId}>
-        Send
+    <div className="ss-page employee-request">
+      <header className="er-head">
+        <h1>הגשת זמינות</h1>
+        <p className="ss-muted">סמנו את הימים והמשמרות שבהם תוכלו לעבוד.</p>
+      </header>
+
+      <div className="er-counter">
+        <span>
+          נבחרו <strong>{totalShifts}</strong> משמרות
+        </span>
+        {remaining > 0 ? (
+          <span className="ss-badge ss-badge-warning">חסרות עוד {remaining}</span>
+        ) : (
+          <span className="ss-badge ss-badge-success">עומד בדרישת המינימום</span>
+        )}
+      </div>
+
+      <div className="er-grid">
+        {DAYS.map(({ key, label }) => {
+          const dayObj = selectedDays.find((d) => d.day === key);
+          const active = !!dayObj;
+          return (
+            <div key={key} className={`er-day-card${active ? " er-day-card--active" : ""}`}>
+              <label className="er-day-head">
+                <input type="checkbox" checked={active} onChange={() => toggleDay(key)} />
+                <span className="er-day-name">{label}</span>
+              </label>
+              <div className="er-shifts">
+                {SHIFTS.map((shift) => {
+                  const on = dayObj?.shifts.includes(shift.key);
+                  return (
+                    <button
+                      key={shift.key}
+                      type="button"
+                      className={`er-shift-pill${on ? " er-shift-pill--on" : ""}`}
+                      disabled={!active}
+                      onClick={() => toggleShift(key, shift.key)}
+                    >
+                      {shift.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        className="ss-btn ss-btn-primary er-send"
+        onClick={handleSend}
+        disabled={!userId || totalShifts < MIN_SHIFTS}
+      >
+        שליחת זמינות
       </button>
     </div>
   );

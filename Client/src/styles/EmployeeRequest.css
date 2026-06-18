@@ -1,42 +1,97 @@
-.employee-request {
-    text-align: center;
-    font-family: Arial, sans-serif;
-    padding: 20px;
-  }
-  
-  .availability-table {
-    margin: 20px auto;
-    border-collapse: collapse;
-    width: 50%;
-  }
-  
-  .availability-table th,
-  .availability-table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .availability-table th {
-    background-color: #f4f4f4;
-  }
-  
-  .selected-row {
-    background-color: lightgreen;
-  }
-  
-  .send-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #1f0ac1;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .send-button:hover {
-    background-color: #15087a;
-  }
-  
+/* EmployeeRequest.css */
+
+.er-head {
+  margin-bottom: var(--space-4);
+}
+.er-head h1 { margin-bottom: 2px; }
+
+.er-counter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-5);
+  font-size: 15px;
+}
+
+.er-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.er-day-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.er-day-card--active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.er-day-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  margin-bottom: var(--space-3);
+}
+.er-day-head input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+.er-day-name {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.er-shifts {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.er-shift-pill {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.er-shift-pill:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.er-shift-pill--on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.er-shift-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.er-send {
+  padding: 13px 28px;
+  font-size: 16px;
+}
+.er-send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
