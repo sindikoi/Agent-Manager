@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
-import logo from "../images/Screenshot 2025-05-29 141545.png"; // נתיב ללוגו
+
+const isManager = (user) =>
+  user && (user.ShiftManager === true || user.job === "management");
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
@@ -25,43 +27,59 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const handleHomePage = () => {
-    navigate("/home");
-  };
+  if (location.pathname === "/login") return null;
 
-  const handleAgentChat = () => {
-    navigate("/agent");
-  };
+  const initials = user?.name
+    ? user.name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join("")
+    : "?";
 
   return (
-    location.pathname !== "/login" && (
-      <nav className="navbar">
-        <div className="navbar-left">
-        <img src={logo} alt="SafeShift Logo" className="navbar-logo" />
-        </div>
-        <div className="navbar-center">
-          {user && (
-            <span className="welcome-text">
-             {user.job}
-            </span>
-          )}
-        </div>
+    <nav className="navbar">
+      <div
+        className="navbar-brand"
+        onClick={() => navigate("/home")}
+        role="button"
+        tabIndex={0}
+      >
+        <span className="navbar-logo-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="4" width="18" height="17" rx="3" stroke="currentColor" strokeWidth="2" />
+            <path d="M3 9h18M8 2v4M16 2v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </span>
+        <span className="navbar-logo-text">SafeShift</span>
+      </div>
 
-        <div className="navbar-right">
-          <button className="home-button" onClick={handleHomePage}>
-            Home
+      <div className="navbar-actions">
+        <button className="navbar-link" onClick={() => navigate("/home")}>
+          בית
+        </button>
+        {isManager(user) && (
+          <button className="navbar-link navbar-link-accent" onClick={() => navigate("/agent")}>
+            <span aria-hidden="true">✨</span> סוכן AI
           </button>
-          {user && user.ShiftManager && (
-            <button className="agent-button" onClick={handleAgentChat}>
-              🤖 סוכן AI
-            </button>
-          )}
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      </nav>
-    )
+        )}
+
+        {user && (
+          <div className="navbar-user">
+            <div className="navbar-avatar" title={user.name}>{initials}</div>
+            <div className="navbar-user-meta">
+              <span className="navbar-user-name">{user.name}</span>
+              {user.Workplace && (
+                <span className="navbar-user-org">{user.Workplace}</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        <button className="navbar-logout" onClick={handleLogout} title="התנתקות">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </nav>
   );
 };
 
