@@ -63,6 +63,9 @@ logs/
 .env
 .env.*
 *.env
+# ...but keep the example templates (no secrets in them)
+!.env.example
+!**/.env.example
 
 # qodo settings
 .qodo/

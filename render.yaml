@@ -1,0 +1,19 @@
+# Render Blueprint — one Docker web service that runs the whole app
+# (Node API + built React client + Python OR-Tools solver).
+# MongoDB stays on Atlas. Deploy: render.com -> New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: safeshift
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/announcements
+    autoDeploy: true
+    envVars:
+      # PORT is provided by Render automatically.
+      - key: MONGO_URI
+        sync: false          # set the secret in the Render dashboard
+      - key: PYTHON_BIN
+        value: /opt/venv/bin/python
+      - key: ANTHROPIC_API_KEY
+        sync: false          # optional; leave blank if not using the AI chat

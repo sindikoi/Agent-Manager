@@ -1,0 +1,14 @@
+**/node_modules
+**/build
+**/dist
+**/__pycache__
+**/*.pyc
+**/.env
+**/.env.*
+.git
+.gitignore
+.idea
+.vscode
+.claude
+*.log
+README.md

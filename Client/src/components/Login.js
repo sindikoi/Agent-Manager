@@ -21,7 +21,7 @@ const Login = () => {
 
     setLoading(true);
     axios
-      .post("http://localhost:3002/login", { id: parseInt(id), password })
+      .post("/login", { id: parseInt(id), password })
       .then((response) => {
         if (response.data.success) {
           const userData = {
