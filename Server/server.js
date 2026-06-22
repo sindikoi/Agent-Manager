@@ -273,6 +273,89 @@ app.post("/api/run-scheduler/:orgId", handler(async (req, res) => {
 }));
 
 // ==============================================================================
+// SETUP (no-AI): build org config + employees + run scheduler from the form.
+// This is the free path used by the Setup screen — no LLM/API key required.
+// ==============================================================================
+app.post("/api/setup-organization/:orgId", handler(async (req, res) => {
+  const orgId = req.params.orgId;
+  const { businessLabel, shifts, roles, numEmployees, demoAvailability } = req.body || {};
+
+  const cleanShifts = (Array.isArray(shifts) ? shifts : [])
+    .map((s) => String(s || "").trim()).filter(Boolean);
+  const cleanRoles = (Array.isArray(roles) ? roles : [])
+    .filter((r) => r && String(r.name || "").trim());
+
+  if (!cleanShifts.length) return res.status(400).json({ success: false, message: "צריך לפחות משמרת אחת." });
+  if (!cleanRoles.length) return res.status(400).json({ success: false, message: "צריך לפחות תפקיד אחד." });
+
+  const db = await getDb();
+  const existing = await db.collection("organizations").findOne({ _id: orgId });
+
+  const shiftTypes = cleanShifts.map((name, i) => ({ id: `shift_${i + 1}`, name }));
+  const roleDefs = cleanRoles.map((r, i) => ({
+    id: `role_${i + 1}`,
+    name: String(r.name).trim(),
+    requiredQualifications: [],
+    isManagerRole: r.isManager === true,
+  }));
+
+  // Same requirements for every day of the week (mirrors the form's promise).
+  const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const scheduleRequirements = {};
+  for (const day of DAYS) {
+    scheduleRequirements[day] = {};
+    for (const st of shiftTypes) {
+      const perRole = {};
+      roleDefs.forEach((rd, i) => {
+        const count = Math.max(0, parseInt(cleanRoles[i].count, 10) || 0);
+        if (count > 0) perRole[rd.id] = count;
+      });
+      scheduleRequirements[day][st.id] = perRole;
+    }
+  }
+
+  const orgDoc = {
+    _id: orgId,
+    name: existing?.name || businessLabel || "הארגון שלי",
+    shiftTypes,
+    qualifications: [],
+    roles: roleDefs,
+    scheduleRequirements,
+    constraints: existing?.constraints || {
+      maxWorkDaysPerWeek: 6,
+      fairnessMaxDiff: 3,
+      forbiddenShiftSequences: [],
+    },
+  };
+  await db.collection("organizations").replaceOne({ _id: orgId }, orgDoc, { upsert: true });
+
+  const accounts = await createEmployeesForOrg(db, orgId, numEmployees, demoAvailability === true);
+
+  let scheduled = false;
+  let scheduleNote = "";
+  if (demoAvailability === true) {
+    const manager = await db.collection("employees").findOne({ organizationId: orgId, isManager: true });
+    if (manager) {
+      const targetDate = moment().startOf("day").subtract(moment().day(), "days").add(7, "days").format("YYYY-MM-DD");
+      try {
+        await runSchedulerProcess(manager._id, targetDate);
+        scheduled = true;
+        scheduleNote = ` סידור חושב לשבוע ${targetDate}.`;
+      } catch (e) {
+        scheduleNote = ` (ההגדרות נשמרו אך הרצת הסידור נכשלה: ${e.message})`;
+      }
+    }
+  }
+
+  res.json({
+    success: true,
+    scheduled,
+    reply: `הארגון הוגדר: ${shiftTypes.length} משמרות, ${roleDefs.length} תפקידים, ${accounts.length} עובדים.${scheduleNote}`,
+    accounts,
+  });
+}));
+
+// ==============================================================================
 // GENERATED SCHEDULES (read results written by Python)
 // ==============================================================================
 app.get("/api/generated-schedules/:orgId", handler(async (req, res) => {

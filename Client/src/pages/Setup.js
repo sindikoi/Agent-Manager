@@ -82,25 +82,6 @@ const Setup = () => {
     setRoles((prev) => [...prev, { name: "", count: 1, isManager: false }]);
   const removeRole = (i) => setRoles((prev) => prev.filter((_, idx) => idx !== i));
 
-  const buildInstruction = () => {
-    const cleanShifts = shifts.map((s) => s.trim()).filter(Boolean);
-    const cleanRoles = roles.filter((r) => r.name.trim());
-    const rolesText = cleanRoles
-      .map((r) => `- ${r.name}${r.isManager ? " (ניהולי)" : ""}: ${r.count} בכל משמרת`)
-      .join("\n");
-
-    return `הקם עבורי ארגון חדש מסוג "${TEMPLATES[templateKey].label}".
-המשמרות (זהות בכל ימות השבוע, ראשון עד שבת): ${cleanShifts.join(", ")}.
-התפקידים והכמות הנדרשת בכל משמרת:
-${rolesText}
-
-יש לי ${numEmployees} עובדים — צור עבורם חשבונות התחברות.
-${demoAvailability
-        ? "מלא זמינות לדוגמה כדי שאוכל לראות סידור מיד, ולאחר מכן הרץ את הסידור לשבוע הבא."
-        : "אל תמלא זמינות — העובדים יגישו בעצמם."}
-בנה את הכל עכשיו והחזר לי את רשימת חשבונות העובדים שנוצרו.`;
-  };
-
   const handleBuild = async () => {
     if (!orgId) {
       setError("למשתמש לא משויך ארגון. יש להתחבר כמנהל.");
@@ -111,23 +92,21 @@ ${demoAvailability
     setAccounts([]);
     setBusy(true);
     try {
-      const res = await axios.post("/api/agent/chat", {
-        userId: user.id,
-        orgId,
-        message: buildInstruction(),
-        conversationHistory: [],
+      const res = await axios.post(`/api/setup-organization/${encodeURIComponent(orgId)}`, {
+        businessLabel: TEMPLATES[templateKey].label,
+        shifts,
+        roles,
+        numEmployees,
+        demoAvailability,
       });
       if (res.data.success) {
         setReply(res.data.reply || "ההגדרה הושלמה.");
-        const empRes = await axios.get(`/api/employees/${encodeURIComponent(orgId)}`);
-        if (empRes.data.success) {
-          setAccounts(empRes.data.employees.filter((e) => e.autoCreated));
-        }
+        setAccounts(res.data.accounts || []);
       } else {
         setError(res.data.message || "ההקמה נכשלה.");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "אירעה שגיאה. ודאי שה-ANTHROPIC_API_KEY מוגדר בשרת.");
+      setError(err.response?.data?.message || "אירעה שגיאה בהקמת הארגון.");
     } finally {
       setBusy(false);
     }
@@ -137,7 +116,7 @@ ${demoAvailability
     <div className="ss-page setup-page">
       <header className="setup-head">
         <h1>הגדרת סידור עבודה</h1>
-        <p className="ss-muted">בחרי את מבנה הסידור — הסוכן יבנה הכל ויריץ את האלגוריתם.</p>
+        <p className="ss-muted">בחרי את מבנה הסידור — המערכת תבנה הכל ותריץ את האלגוריתם.</p>
       </header>
 
       <section className="ss-card setup-section">
@@ -238,13 +217,13 @@ ${demoAvailability
 
       <div className="setup-actions">
         <button className="ss-btn ss-btn-primary setup-build" onClick={handleBuild} disabled={busy}>
-          {busy ? "הסוכן בונה..." : "✨ בנה סידור עם הסוכן"}
+          {busy ? "בונה..." : "✨ בנה סידור"}
         </button>
       </div>
 
       {reply && (
         <section className="ss-card setup-result">
-          <h3>✓ הסוכן סיים</h3>
+          <h3>✓ ההגדרה הושלמה</h3>
           <p className="setup-reply">{reply}</p>
 
           {accounts.length > 0 && (
